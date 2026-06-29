@@ -1,0 +1,18 @@
+[Unit]
+Description=3D Shooting Game Server
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/var/www/game
+ExecStart=/usr/bin/node app.js
+Restart=on-failure
+RestartSec=10
+
+Environment=NODE_ENV=production
+Environment=PORT=8000
+Environment=JWT_SECRET=your-secure-jwt-secret-change-in-production
+
+[Install]
+WantedBy=multi-user.target
