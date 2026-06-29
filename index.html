@@ -36,6 +36,151 @@
             width: 100%;
             bottom: 0;
         }
+        #settings-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            padding: 10px 20px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 200;
+            font-size: 14px;
+        }
+        #settings-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+        #settings-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            padding: 30px;
+            border-radius: 15px;
+            color: white;
+            z-index: 300;
+            display: none;
+            min-width: 350px;
+            font-family: Arial, sans-serif;
+        }
+        #settings-panel h2 {
+            margin-top: 0;
+            margin-bottom: 25px;
+            text-align: center;
+            color: #4a9eff;
+        }
+        .setting-item {
+            margin-bottom: 20px;
+        }
+        .setting-item label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #ccc;
+        }
+        .setting-item input[type="range"] {
+            width: 100%;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        .setting-item input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #4a9eff;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        .setting-item input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            background: #4a9eff;
+            border-radius: 50%;
+            cursor: pointer;
+            border: none;
+        }
+        .setting-item input[type="color"] {
+            width: 50px;
+            height: 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: transparent;
+        }
+        .setting-value {
+            display: inline-block;
+            margin-left: 10px;
+            color: #4a9eff;
+            font-size: 14px;
+            min-width: 50px;
+        }
+        #close-settings {
+            display: block;
+            margin: 25px auto 0;
+            padding: 10px 30px;
+            background: #4a9eff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        #close-settings:hover {
+            background: #357ae8;
+        }
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 150;
+            --crosshair-size: 20px;
+            --crosshair-color: #ffffff;
+        }
+        #crosshair::before,
+        #crosshair::after {
+            content: '';
+            position: absolute;
+            background: var(--crosshair-color);
+        }
+        #crosshair::before {
+            width: 2px;
+            height: var(--crosshair-size);
+            top: calc(-1 * var(--crosshair-size) / 2);
+            left: 0;
+        }
+        #crosshair::after {
+            width: var(--crosshair-size);
+            height: 2px;
+            top: 0;
+            left: calc(-1 * var(--crosshair-size) / 2);
+        }
+        #crosshair .crosshair-center {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            top: -4px;
+            left: -4px;
+            border: 2px solid var(--crosshair-color);
+            border-radius: 50%;
+        }
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 250;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -48,6 +193,31 @@
     <img class="gun" id="gun1" src="img/1.png">
     <img class="gun" id="gun2" src="img/2.png">
 </div>
+<div id="crosshair">
+    <div class="crosshair-center"></div>
+</div>
+<button id="settings-btn">设置</button>
+<div class="overlay" id="settings-overlay"></div>
+<div id="settings-panel">
+    <h2>游戏设置</h2>
+    <div class="setting-item">
+        <label>鼠标灵敏度 <span class="setting-value" id="sensitivity-value">0.3</span></label>
+        <input type="range" id="sensitivity-slider" min="0.1" max="1" step="0.05" value="0.3">
+    </div>
+    <div class="setting-item">
+        <label>准星大小 <span class="setting-value" id="crosshair-size-value">20</span></label>
+        <input type="range" id="crosshair-size-slider" min="10" max="50" step="1" value="20">
+    </div>
+    <div class="setting-item">
+        <label>准星颜色</label>
+        <input type="color" id="crosshair-color-picker" value="#ffffff">
+    </div>
+    <div class="setting-item">
+        <label>声音大小 <span class="setting-value" id="volume-value">100%</span></label>
+        <input type="range" id="volume-slider" min="0" max="100" step="5" value="100">
+    </div>
+    <button id="close-settings">关闭</button>
+</div>
 <div id="copyright">
     <a href="https://github.com/song-hao/AdWebHW2">Github Repo</a>
     <p>© 13302010005@fudan.edu.cn 宋浩</p>
@@ -58,5 +228,10 @@
 <script src="js/libs/FirstPersonControls.js" type="text/javascript"></script>
 <script src="js/libs/stats.min.js" type="text/javascript"></script>
 <script src="js/main.js" type="text/javascript"></script>
+<script type="text/javascript">
+    window.addEventListener('load', function() {
+        initSettings();
+    });
+</script>
 </body>
 </html>

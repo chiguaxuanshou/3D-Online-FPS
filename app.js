@@ -10,17 +10,33 @@ var bullets = [];
 app.listen(8000);
 console.log("\nGame Log:\n");
 
+function getContentType(path) {
+    var ext = path.split('.').pop().toLowerCase();
+    var contentTypeMap = {
+        'html': 'text/html',
+        'js': 'application/javascript',
+        'css': 'text/css',
+        'png': 'image/png',
+        'jpg': 'image/jpeg',
+        'jpeg': 'image/jpeg',
+        'gif': 'image/gif',
+        'ico': 'image/x-icon'
+    };
+    return contentTypeMap[ext] || 'text/html';
+}
+
 // Set up the Server
 function server(req, res) {
     var path = url.parse(req.url).pathname;
-    if (path == '/') path = '/index.html'; // Set default path = index.html
+    if (path == '/') path = '/index.html';
     fs.readFile(__dirname + path, function (err, data) {
         if (err) {
             console.log("404 not found: " + path);
             res.writeHead(404);
             res.write('404 not found: ' + path);
         } else {
-            res.writeHead(200, {'Content-Type': 'text/html'});
+            var contentType = getContentType(path);
+            res.writeHead(200, {'Content-Type': contentType});
             res.write(data, 'utf8');
         }
         res.end();

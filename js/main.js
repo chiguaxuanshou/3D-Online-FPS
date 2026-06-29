@@ -11,6 +11,13 @@ var textureLoader = new THREE.TextureLoader();
 var bulletMap = textureLoader.load("textures/sprite.png");
 var loader = new THREE.JSONLoader();
 
+var settings = {
+    sensitivity: 0.3,
+    crosshairSize: 20,
+    crosshairColor: '#ffffff',
+    volume: 1
+};
+
 // Socket.io
 socket.on('init', function (socketID) {
     id = socketID;
@@ -63,11 +70,17 @@ socket.on('reconnect_failed', function () {
 });
 
 init();
+$(document).ready(function() {
+    initSettings();
+});
 animate();
 
 // Fire
-$(this).click(function () {
-    var speed = camera.getWorldDirection().multiplyScalar(20); // create speed vactor
+$(document).click(function (e) {
+    if (e.target.closest('#settings-panel') || e.target.closest('#settings-btn') || e.target.closest('#settings-overlay')) {
+        return;
+    }
+    var speed = camera.getWorldDirection().multiplyScalar(20);
     AddBullet(camera.position, speed);
     socket.emit('bullet', [controls.object.position, speed]);
 });
@@ -288,4 +301,91 @@ function Bullet(particle, speed) {
     this.particle = particle;
     this.speed = speed;
     return this;
+}
+
+function initSettings() {
+    var settingsBtn = document.getElementById('settings-btn');
+    var settingsPanel = document.getElementById('settings-panel');
+    var settingsOverlay = document.getElementById('settings-overlay');
+    var closeSettingsBtn = document.getElementById('close-settings');
+
+    var sensitivitySlider = document.getElementById('sensitivity-slider');
+    var sensitivityValue = document.getElementById('sensitivity-value');
+    var crosshairSizeSlider = document.getElementById('crosshair-size-slider');
+    var crosshairSizeValue = document.getElementById('crosshair-size-value');
+    var crosshairColorPicker = document.getElementById('crosshair-color-picker');
+    var volumeSlider = document.getElementById('volume-slider');
+    var volumeValue = document.getElementById('volume-value');
+
+    if (!settingsBtn || !settingsPanel) {
+        console.error('Settings elements not found');
+        return;
+    }
+
+    settingsBtn.onclick = function () {
+        settingsPanel.style.display = 'block';
+        settingsOverlay.style.display = 'block';
+        document.body.style.cursor = 'default';
+    };
+
+    function closeSettings() {
+        settingsPanel.style.display = 'none';
+        settingsOverlay.style.display = 'none';
+        document.body.style.cursor = 'crosshair';
+    }
+
+    if (closeSettingsBtn) {
+        closeSettingsBtn.onclick = closeSettings;
+    }
+    if (settingsOverlay) {
+        settingsOverlay.onclick = closeSettings;
+    }
+
+    if (sensitivitySlider && sensitivityValue) {
+        sensitivitySlider.oninput = function () {
+            var value = parseFloat(this.value);
+            settings.sensitivity = value;
+            sensitivityValue.textContent = value.toFixed(2);
+            if (controls) {
+                controls.lookSpeed = value;
+            }
+        };
+    }
+
+    if (crosshairSizeSlider && crosshairSizeValue) {
+        crosshairSizeSlider.oninput = function () {
+            var value = parseInt(this.value);
+            settings.crosshairSize = value;
+            crosshairSizeValue.textContent = value;
+            updateCrosshair();
+        };
+    }
+
+    if (crosshairColorPicker) {
+        crosshairColorPicker.oninput = function () {
+            settings.crosshairColor = this.value;
+            updateCrosshair();
+        };
+    }
+
+    if (volumeSlider && volumeValue) {
+        volumeSlider.oninput = function () {
+            var value = parseInt(this.value);
+            settings.volume = value / 100;
+            volumeValue.textContent = value + '%';
+        };
+    }
+
+    updateCrosshair();
+}
+
+function updateCrosshair() {
+    var crosshair = document.getElementById('crosshair');
+    if (!crosshair) return;
+
+    var size = settings.crosshairSize;
+    var color = settings.crosshairColor;
+
+    crosshair.style.setProperty('--crosshair-size', size + 'px');
+    crosshair.style.setProperty('--crosshair-color', color);
 }
